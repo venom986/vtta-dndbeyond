@@ -1,4 +1,4 @@
-import utils from "../../utils.js";
+import { utils, getJSON } from "../../utils.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
@@ -10,11 +10,13 @@ export function getCharacterSpells(ddb, character) {
   let items = [];
   const proficiencyModifier = character.data.attributes.prof;
   const lookups = getLookups(ddb.character);
+  const alwayPreparedSpellsBaseURL = "https://character-service.dndbeyond.com/character/v4/game-data/always-prepared-spells";
 
   // each class has an entry here, each entry has spells
   // we loop through each class and process
   ddb.character.classSpells.forEach((playerClass) => {
     const classInfo = ddb.character.classes.find((cls) => cls.id === playerClass.characterClassId);
+    const classLevel = classInfo.level;
     const spellCastingAbility = getSpellCastingAbility(classInfo);
     const abilityModifier = utils.calculateModifier(character.data.abilities[spellCastingAbility].value);
 
@@ -65,6 +67,58 @@ export function getCharacterSpells(ddb, character) {
         // we'll emit a console message if it doesn't match this case for future debugging
         console.warn(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`); // eslint-disable-line no-console
       }
+    });
+
+    // Issue #278
+    classInfo.subclassDefinition.forEach((subClass) => {
+      const subClassId = classInfo.subclassDefinition.id;
+      const alwaysPreparedSpellsURL = alwayPreparedSpellsBaseURL + "?classId=" + subClassId + "&classLevel=" + classLevel;
+      
+      getJSON(alwaysPreparedSpellsURL,
+        function(err,response) {
+          if (err !== null) {
+            console.error("Could not read " + alwaysPreparedSpellsURL);
+          } else {
+            if (!spell.definition) return;
+            // add some data for the parsing of the spells into the data structure
+            spell.flags = {
+              vtta: {
+                dndbeyond: {
+                  lookup: "classSpell",
+                  class: classInfo.definition.name,
+                  level: classInfo.level,
+                  spellLevel: spell.definition.level,
+                  spellSlots: character.data.spells,
+                  ability: spellCastingAbility,
+                  mod: abilityModifier,
+                  dc: 8 + proficiencyModifier + abilityModifier,
+                  cantripBoost: cantripBoost,
+                  overrideDC: false,
+                },
+              },
+            };
+      
+            // Check for duplicate spells, normally domain ones
+            // We will import spells from a different class that are the same though
+            // as they may come from with different spell casting mods
+            const duplicateSpell = items.findIndex(
+              (existingSpell) =>
+                existingSpell.name === spell.definition.name &&
+                classInfo.definition.name === existingSpell.flags.vtta.dndbeyond.class
+            );
+            if (!items[duplicateSpell]) {
+              items.push(parseSpell(spell, character));
+            } else if (spell.alwaysPrepared) {
+              // if our new spell is always known we overwrite!
+              // it's probably domain
+              items[duplicateSpell] = parseSpell(spell, character);
+            } else {
+              // we'll emit a console message if it doesn't match this case for future debugging
+              console.warn(`Duplicate Spell ${spell.definition.name} detected in class ${classInfo.definition.name}.`); // eslint-disable-line no-console
+            }
+          } 
+        }
+      )
     });
   });
 
