@@ -1,4 +1,4 @@
-import { utils, getJSON } from "../../utils.js";
+import { utils } from "../../utils.js";
 
 // Import parsing functions
 import { getLookups } from "./metadata.js";
@@ -74,7 +74,7 @@ export function getCharacterSpells(ddb, character) {
       const subClassId = classInfo.subclassDefinition.id;
       const alwaysPreparedSpellsURL = alwayPreparedSpellsBaseURL + "?classId=" + subClassId + "&classLevel=" + classLevel;
       
-      getJSON(alwaysPreparedSpellsURL,
+      utils.getJSON(alwaysPreparedSpellsURL,
         function(err,response) {
           if (err !== null) {
             console.error("Could not read " + alwaysPreparedSpellsURL);
