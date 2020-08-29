@@ -11,7 +11,12 @@ import { getSpellCastingAbility, hasSpellCastingAbility, convertSpellCastingAbil
 async function getExtendedSpells(subClassId, classLevel) {
   const alwayPreparedSpellsBaseURL = "https://proxy.vttassets.com/?url=https://character-service.dndbeyond.com/character/v4/game-data/always-prepared-spells";
   const alwaysPreparedSpellsURL = alwayPreparedSpellsBaseURL + "?classId=" + subClassId + "&classLevel=" + classLevel;
-  let alwaysPreparedSpells = await utils.getJSON(alwaysPreparedSpellsURL);
+  let alwaysPreparedSpells = null;
+  try {
+    alwaysPreparedSpells = await utils.getJSON(alwaysPreparedSpellsURL);
+  } catch(err) {
+    utils.console.error(err);
+  }
   return alwaysPreparedSpells;
 }
 
@@ -79,7 +84,7 @@ export function getCharacterSpells(ddb, character) {
 
     // Issue #278
     // Get the extended spell list spells for this class
-    let alwaysPreparedSpells = await getExtendedSpells(classInfo.subclassDefinition.id, classInfo.level);  
+    const alwaysPreparedSpells = getExtendedSpells(classInfo.subclassDefinition.id, classInfo.level);  
 
     if (alwaysPreparedSpells != null) {
       alwaysPreparedSpells.data.forEach((spell) => {
