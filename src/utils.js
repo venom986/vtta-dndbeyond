@@ -13,14 +13,12 @@ let utils = {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url);
         xhr.responseType = 'json';
-        xhr.onreadystatechange = function() {
-          if (xhr.readyState == xhr.DONE) {
-            // var status = xhr.status;
-            if (xhr.status === 200) {
-              resolve(xhr.response);
-            } else {
-              reject("Could not read " + url + "(" + xhr.status + ")");
-            }
+        xhr.onload = function() {
+          // var status = xhr.status;
+          if (xhr.status === 200) {
+            resolve(xhr.response);
+          } else {
+            reject("Could not read " + url + "(" + xhr.status + ")");
           }
         };
         xhr.send();
