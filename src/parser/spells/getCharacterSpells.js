@@ -12,9 +12,10 @@ async function getExtendedSpells(classInfo, items) {
   const classLevel = classInfo.level;
   const alwayPreparedSpellsBaseURL = "https://proxy.vttassets.com/?url=https://character-service.dndbeyond.com/character/v4/game-data/always-prepared-spells";
   const alwaysPreparedSpellsURL = alwayPreparedSpellsBaseURL + "?classId=" + subClassId + "&classLevel=" + classLevel;
-  const alwaysPreparedSpells = await utils.getJSON(alwaysPreparedSpellsURL);
+  let alwaysPreparedSpells = null;
+  alwaysPreparedSpells = await utils.getJSON(alwaysPreparedSpellsURL);
   
-  if (!alwaysPreparedSpells) {
+  if (alwaysPreparedSpells != null) {
     alwaysPreparedSpells.data.forEach((spell) => {
       if (!spell.definition) return;
       
