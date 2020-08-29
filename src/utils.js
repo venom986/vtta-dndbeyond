@@ -7,19 +7,19 @@ let utils = {
     return true;
   },
 
-  getJSON: async function (url, callback) {
+  getJSON: async function (url) {
     return new Promise((resolve, reject) => {
       try {
         let xhr = new XMLHttpRequest();
         xhr.open('GET', url, true);
         xhr.responseType = 'json';
         xhr.onreadystatechange = function() {
-          if (this.readyState == this.DONE) {
+          if (xhr.readyState == xhr.DONE) {
             // var status = xhr.status;
-            if (this.status === 200) {
+            if (xhr.status === 200) {
               resolve(xhr.response);
             } else {
-              reject("Could not read " + url + "(" + status + ")");
+              reject("Could not read " + url + "(" + xhr.status + ")");
             }
           }
         };
