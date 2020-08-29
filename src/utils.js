@@ -17,7 +17,7 @@ let utils = {
           if (this.readyState == this.DONE) {
             // var status = xhr.status;
             if (this.status === 200) {
-              resolve(null, xhr.response);
+              resolve(xhr.response);
             } else {
               reject("Could not read " + url + "(" + status + ")");
             }
