@@ -7,19 +7,27 @@ let utils = {
     return true;
   },
 
-  getJSON: (url, callback) => {
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'json';
-    xhr.onload = function() {
-      var status = xhr.status;
-      if (status === 200) {
-        callback(null, xhr.response);
-      } else {
-        callback(status, xhr.response);
+  getJSON: async function (url, callback) {
+    return new Promise((resolve, reject) => {
+      try {
+        let xhr = new XMLHttpRequest();
+        xhr.open('GET', url, true);
+        xhr.responseType = 'json';
+        xhr.onreadystatechange = function() {
+          if (this.readyState == this.DONE) {
+            // var status = xhr.status;
+            if (this.status === 200) {
+              resolve(null, xhr.response);
+            } else {
+              reject("Could not read " + url + "(" + status + ")");
+            }
+          }
+        };
+        xhr.send();
+      } catch (error) {
+        reject(error.message);
       }
-    };
-    xhr.send();
+    })
   },
 
   findByProperty: (arr, property, searchString) => {
