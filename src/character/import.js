@@ -581,7 +581,7 @@ export default class CharacterImport extends Application {
         }
 
         try {
-          this.result = parser.parseJson(data);
+          this.result = await parser.parseJson(data);
         } catch (error) {
           await this.showErrorMessage(html, error);
           return false;

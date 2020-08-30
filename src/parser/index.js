@@ -6,11 +6,11 @@ import { getCharacterSpells } from "./spells/getCharacterSpells.js";
 import { getItemSpells } from "./spells/getItemSpells.js";
 import getInventory from "./inventory/index.js";
 
-let parseJson = (ddb) => {
+let parseJson = async (ddb) => {
   let character = getCharacter(ddb);
   let features = getFeatures(ddb, character);
   let classes = getClasses(ddb);
-  let spells = getCharacterSpells(ddb, character);
+  let spells = await getCharacterSpells(ddb, character);
   let actions = getActions(ddb, character);
   let itemSpells = getItemSpells(ddb, character);
   let inventory = getInventory(ddb, character, itemSpells);
