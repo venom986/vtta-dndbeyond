@@ -76,7 +76,7 @@ async function getExtendedSpells(ddb, character, classInfo, items) {
   }
 }
 
-export function getCharacterSpells(ddb, character) {
+export async function getCharacterSpells(ddb, character) {
   let items = [];
   const proficiencyModifier = character.data.attributes.prof;
   const lookups = getLookups(ddb.character);
@@ -139,7 +139,7 @@ export function getCharacterSpells(ddb, character) {
 
     // Issue #278
     // Get the extended spell list spells for this class
-    getExtendedSpells(ddb, character, classInfo, items);
+    await getExtendedSpells(ddb, character, classInfo, items);
     console.info(items[items.length-1].name);
   });
 
